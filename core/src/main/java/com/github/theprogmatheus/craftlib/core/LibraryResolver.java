@@ -1,13 +1,17 @@
 package com.github.theprogmatheus.craftlib.core;
 
 
+import lombok.Data;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,11 +23,14 @@ import java.util.logging.Logger;
  * the file under the plugin's data folder, typically in:
  * {dataFolder}/libraries/group/artifact/version/
  */
-public class LibraryResolver {
+@Data
+public abstract class LibraryResolver {
 
     private final Logger logger;
     private final File librariesFolder;
-    private final List<LibraryRepository> repositories;
+    private final Set<LibraryRepository> repositories;
+
+    public abstract List<File> resolve();
 
     /**
      * Constructs a new LibraryResolver.
@@ -31,7 +38,7 @@ public class LibraryResolver {
      * @param dataFolder   The plugin's base data folder.
      * @param repositories A list of repositories to search in order.
      */
-    public LibraryResolver(Logger logger, File dataFolder, List<LibraryRepository> repositories) {
+    public LibraryResolver(Logger logger, File dataFolder, Set<LibraryRepository> repositories) {
         this.logger = logger;
         this.librariesFolder = new File(dataFolder, "libraries");
         this.repositories = repositories;
@@ -44,7 +51,7 @@ public class LibraryResolver {
      * @return The list of files pointing to the downloaded jars.
      * @throws IOException If any dependency could not be downloaded.
      */
-    public List<File> resolve(List<LibraryDependency> dependencies) {
+    public List<File> resolve(Collection<LibraryDependency> dependencies) {
         if (dependencies == null) {
             logger.warning("No dependencies provided to resolve (null list). Returning empty list.");
             return List.of();
