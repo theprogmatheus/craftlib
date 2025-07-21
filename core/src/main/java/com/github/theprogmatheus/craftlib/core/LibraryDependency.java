@@ -33,6 +33,26 @@ public class LibraryDependency {
     private final String version;
 
     /**
+     * Creates a LibraryDependency from a Maven coordinate string.
+     *
+     * @param coordinates the Maven coordinates string in the format "groupId:artifactId:version"
+     * @return a new LibraryDependency instance
+     * @throws IllegalArgumentException if the coordinates string is invalid
+     */
+    public static LibraryDependency fromCoordinates(String coordinates) {
+        if (coordinates == null || coordinates.isBlank()) {
+            throw new IllegalArgumentException("Coordinates string cannot be null or empty");
+        }
+
+        String[] parts = coordinates.split(":");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Coordinates must be in the format 'groupId:artifactId:version'");
+        }
+
+        return new LibraryDependency(parts[0], parts[1], parts[2]);
+    }
+
+    /**
      * Returns the full Maven coordinates of the dependency.
      * Format: "groupId:artifactId:version"
      *
