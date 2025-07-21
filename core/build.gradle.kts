@@ -5,3 +5,13 @@ plugins {
 
 group = "com.github.theprogmatheus.craftlib"
 version = "1.0-SNAPSHOT"
+
+val lombokVersion = "1.18.38"
+
+dependencies {
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+}
