@@ -1,3 +1,3 @@
-rootProject.name = "CraftLib"
+rootProject.name = "craftlib"
 include("core")
 include("bukkit")
