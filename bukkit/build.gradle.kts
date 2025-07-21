@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow")
 }
 
 group = "com.github.theprogmatheus.craftlib"
