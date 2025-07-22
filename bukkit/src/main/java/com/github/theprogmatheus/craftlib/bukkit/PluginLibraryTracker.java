@@ -41,11 +41,12 @@ public class PluginLibraryTracker implements Runnable {
         }
         try {
             plugin.getLogger().info("Trying to load a shaded dependency file");
-            var libraryShader = new PluginLibraryShader(new File(plugin.getDataFolder(), "libraries.jar"), filesToShade);
+            var libraryShader = new PluginLibraryShader(this.plugin, new File(plugin.getDataFolder(), "libraries.jar"), filesToShade);
             Plugin shadedPlugin = Bukkit.getPluginManager().loadPlugin(libraryShader.shade());
             plugin.getLogger().info("Shaded dependency file loaded successfully [%s].".formatted(shadedPlugin.getName()));
         } catch (Exception e) {
-            plugin.getLogger().severe("Unable to create a shaded dependency file: " + e.getMessage());
+            plugin.getLogger().severe("Unable to create a shaded dependency file");
+            e.printStackTrace();
         }
 
     }

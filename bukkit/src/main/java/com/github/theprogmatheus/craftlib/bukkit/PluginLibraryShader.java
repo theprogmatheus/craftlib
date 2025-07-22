@@ -2,8 +2,11 @@ package com.github.theprogmatheus.craftlib.bukkit;
 
 import com.github.theprogmatheus.craftlib.core.utils.FileUtils;
 import lombok.Getter;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -19,12 +22,14 @@ public class PluginLibraryShader {
     private static final String PLUGIN_YML = "plugin.yml";
 
 
+    private final Plugin plugin;
     private final File shadeJar;
     private final Collection<File> files;
     private final String shadeHash;
 
 
-    public PluginLibraryShader(File shadeJar, Collection<File> files) throws Exception {
+    public PluginLibraryShader(Plugin plugin, File shadeJar, Collection<File> files) throws Exception {
+        this.plugin = plugin;
         this.shadeJar = shadeJar;
         this.files = files;
         this.shadeHash = FileUtils.hashFiles(files);
@@ -90,17 +95,19 @@ public class PluginLibraryShader {
     }
 
     private void addPluginYml(JarOutputStream jarOutputStream) throws Exception {
+        InputStream inputStream = this.plugin.getResource(PLUGIN_YML);
+        if (inputStream == null) throw new FileNotFoundException("plugin.yml não encontrado!");
+
+        YamlConfiguration pluginYaml = new YamlConfiguration();
+        pluginYaml.load(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+        pluginYaml.set("main", MAIN_CLASS_NAME);
+        pluginYaml.set("name", "CraftLibs");
+        pluginYaml.set("description", "A shade plugin with all the necessary dependencies");
+        pluginYaml.set("shade-hash", this.shadeHash);
+
         jarOutputStream.putNextEntry(new JarEntry(PLUGIN_YML));
-        jarOutputStream.write(("""
-                load: STARTUP
-                depend: ["CraftLib"]
-                name: CraftLibs
-                main: %s
-                version: 1.0.0
-                api-version: 1.8
-                shade-hash: %s
-                """.formatted(MAIN_CLASS_NAME, this.shadeHash)).getBytes());
+        jarOutputStream.write(pluginYaml.saveToString().getBytes());
         jarOutputStream.closeEntry();
     }
-
 }

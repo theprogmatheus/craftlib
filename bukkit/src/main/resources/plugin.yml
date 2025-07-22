@@ -1,6 +1,7 @@
 load: "STARTUP"
 main: "com.github.theprogmatheus.craftlib.bukkit.Main"
 name: "CraftLib"
+description: "A lightweight runtime library loader."
 version: "1.0-SNAPSHOT"
 api-version: 1.8
 author: "TheProgMatheus"
