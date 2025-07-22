@@ -61,9 +61,9 @@ public abstract class LibraryResolver {
 
         List<File> resolvedFiles = dependencies.stream().map(dep -> {
             try {
-                logger.info("Resolving dependency: " + dep);
+                logger.fine("Resolving dependency: " + dep);
                 File file = resolve(dep);
-                logger.info("Successfully resolved dependency: " + dep + " -> " + file.getAbsolutePath());
+                logger.fine("Successfully resolved dependency: " + file.getAbsolutePath());
                 return file;
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed to resolve dependency: " + dep, e);
@@ -94,20 +94,20 @@ public abstract class LibraryResolver {
         );
 
         if (outputFile.exists()) {
-            logger.fine("Dependency already cached locally: " + outputFile.getAbsolutePath());
+            logger.info("Dependency already cached locally: " + outputFile.getAbsolutePath());
             return outputFile;
         }
 
-        logger.info("Dependency not cached, preparing to download: " + dependency);
+        logger.fine("Dependency not cached, preparing to download: " + dependency);
         outputFile.getParentFile().mkdirs();
 
         IOException lastError = null;
         for (LibraryRepository repository : repositories) {
             try {
                 URL url = dependency.getDownloadURI(repository).toURL();
-                logger.info("Trying to download from %s repository: %s".formatted(repository.getName(), url));
+                logger.fine("Trying to download from %s".formatted(url));
                 download(url, outputFile);
-                logger.info("Downloaded dependency successfully: " + outputFile.getAbsolutePath());
+                logger.info("Downloaded dependency successfully: %s".formatted(url));
                 return outputFile;
             } catch (IOException e) {
                 lastError = e;

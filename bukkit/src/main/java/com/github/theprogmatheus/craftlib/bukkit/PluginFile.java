@@ -37,7 +37,6 @@ public class PluginFile {
         return this.pluginName;
     }
 
-
     public boolean isValidPlugin() {
         var pluginName = getPluginName();
         return pluginName != null && !pluginName.isBlank();
@@ -100,7 +99,7 @@ public class PluginFile {
         return this.dependencies = list;
     }
 
-    private YamlConfiguration getPluginYaml() {
+    public YamlConfiguration getPluginYaml() {
         if (this.pluginYaml != null)
             return this.pluginYaml;
 
@@ -116,5 +115,17 @@ public class PluginFile {
         } catch (Exception ignored) {
         }
         return this.pluginYaml;
+    }
+
+
+    public static boolean isValidJarFile(File file) {
+        if (file == null || !file.exists())
+            return false;
+
+        if (file.isDirectory())
+            return false;
+
+        String fileName = file.getName();
+        return fileName.endsWith(".jar");
     }
 }

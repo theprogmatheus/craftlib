@@ -1,13 +1,15 @@
 package com.github.theprogmatheus.craftlib.bukkit;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.theprogmatheus.craftlib.bukkit.PluginFile.isValidJarFile;
 
 @RequiredArgsConstructor
 public class PluginLibraryTracker implements Runnable {
@@ -17,7 +19,6 @@ public class PluginLibraryTracker implements Runnable {
     private final JavaPlugin plugin;
 
     @Override
-    @SneakyThrows
     public void run() {
         if (!(PLUGINS_FOLDER.exists() && PLUGINS_FOLDER.isDirectory()))
             return;
@@ -38,20 +39,15 @@ public class PluginLibraryTracker implements Runnable {
 
             filesToShade.addAll(new PluginLibraryResolver(this.plugin, pluginFile).resolve());
         }
+        try {
+            plugin.getLogger().info("Trying to load a shaded dependency file");
+            var libraryShader = new PluginLibraryShader(new File(plugin.getDataFolder(), "libraries.jar"), filesToShade);
+            Plugin shadedPlugin = Bukkit.getPluginManager().loadPlugin(libraryShader.shade());
+            plugin.getLogger().info("Shaded dependency file loaded successfully [%s].".formatted(shadedPlugin.getName()));
+        } catch (Exception e) {
+            plugin.getLogger().severe("Unable to create a shaded dependency file: " + e.getMessage());
+        }
 
-        PluginLibraryShader libraryShader = new PluginLibraryShader(new File(this.plugin.getDataFolder(), "craftlib-shade.jar"), filesToShade);
-        Bukkit.getPluginManager().loadPlugin(libraryShader.createShadedPluginJar());
-    }
-
-    private boolean isValidJarFile(File file) {
-        if (file == null)
-            return false;
-
-        if (file.isDirectory())
-            return false;
-
-        String fileName = file.getName();
-        return fileName.endsWith(".jar");
     }
 
 }
