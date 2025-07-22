@@ -18,6 +18,7 @@ val lombokVersion = "1.18.38"
 dependencies {
     implementation(project(":core"))
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT@jar")
+    implementation("com.github.theprogmatheus:JGR-UChecker:1.0.0")
 
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
