@@ -8,6 +8,8 @@ import org.bukkit.plugin.Plugin;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -40,6 +42,8 @@ public class PluginLibraryShader {
         if (alreadyExists(true))
             return this.shadeJar;
 
+        Set<String> addedEntries = new HashSet<>();
+
         try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(shadeJar), createManifest())) {
 
             byte[] buffer = new byte[8192];
@@ -48,9 +52,16 @@ public class PluginLibraryShader {
                 try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
                     ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
-                        if (entry.isDirectory() || entry.getName().startsWith("META-INF"))
+                        String entryName = entry.getName();
+
+                        if (entry.isDirectory() || entryName.startsWith("META-INF"))
                             continue;
+
+                        if (addedEntries.contains(entryName))
+                            continue;
+
                         jarOutputStream.putNextEntry(new JarEntry(entry.getName()));
+                        addedEntries.add(entryName);
 
                         int bytesRead;
                         while ((bytesRead = zis.read(buffer)) != -1) {

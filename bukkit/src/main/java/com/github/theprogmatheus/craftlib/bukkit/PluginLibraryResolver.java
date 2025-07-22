@@ -1,14 +1,13 @@
 package com.github.theprogmatheus.craftlib.bukkit;
 
 import com.github.theprogmatheus.craftlib.core.LibraryDependency;
-import com.github.theprogmatheus.craftlib.core.LibraryRepository;
 import com.github.theprogmatheus.craftlib.core.LibraryResolver;
 import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 @Getter
@@ -21,18 +20,14 @@ public class PluginLibraryResolver extends LibraryResolver {
         super(plugin.getLogger(), plugin.getDataFolder(), pluginFile.getRepositories());
         this.plugin = plugin;
         this.pluginFile = pluginFile;
-
-        // set default repositories
-        getRepositories().addAll(LibraryRepository.ALL);
     }
 
 
     @Override
-    public List<File> resolve() {
+    public Collection<File> resolve() {
         Set<LibraryDependency> dependencies = this.pluginFile.getDependencies();
         if (dependencies.isEmpty())
             return new ArrayList<>();
-
-        return super.resolve(dependencies);
+        return super.resolveMaven(dependencies);
     }
 }

@@ -2,6 +2,7 @@ package com.github.theprogmatheus.craftlib.core;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.aether.repository.RemoteRepository;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -52,5 +53,9 @@ public class LibraryRepository {
             CODE_MC,
             JITPACK
     );
+
+    public RemoteRepository toMavenRepository() {
+        return new RemoteRepository.Builder(this.name, "default", this.uri.toString()).build();
+    }
 
 }

@@ -6,8 +6,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.github.theprogmatheus.craftlib.bukkit.PluginFile.isValidJarFile;
 
@@ -27,7 +27,7 @@ public class PluginLibraryTracker implements Runnable {
         if (files == null)
             return;
 
-        List<File> filesToShade = new ArrayList<>();
+        Set<File> filesToShade = new HashSet<>();
 
         for (File file : files) {
             if (!isValidJarFile(file))
