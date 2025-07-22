@@ -23,10 +23,6 @@ public class SnapshotMetadataResolver {
      * @return The resolved version (e.g. "1.0.0-20250715.154406-1"), or null if failed
      */
     public static String resolveSnapshotVersion(LibraryDependency dependency, LibraryRepository repository) {
-        if (!dependency.getVersion().endsWith("-SNAPSHOT")) {
-            return dependency.getVersion(); // stable version, nothing to resolve
-        }
-
         try {
             String metadataPath = dependency.getRelativePath() + "maven-metadata.xml";
             URL metadataUrl = repository.getUri().resolve(metadataPath).toURL();
@@ -35,9 +31,9 @@ public class SnapshotMetadataResolver {
             connection.setRequestProperty("User-Agent", "CraftLib Resolver");
             connection.connect();
 
-            if (connection.getResponseCode() != 200) {
+            int code = connection.getResponseCode();
+            if (code >= 400 && code < 600)
                 return null;
-            }
 
             try (InputStream stream = connection.getInputStream()) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -57,9 +53,7 @@ public class SnapshotMetadataResolver {
             }
 
         } catch (Exception ignored) {
-            // log?
         }
-
         return null;
     }
 

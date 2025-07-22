@@ -140,7 +140,7 @@ public class LibraryDependency {
                 "%s/%s/%s/%s-%s%s",
                 groupPath,
                 artifactId,
-                version,
+                this.version,
                 artifactId,
                 version,
                 suffix
