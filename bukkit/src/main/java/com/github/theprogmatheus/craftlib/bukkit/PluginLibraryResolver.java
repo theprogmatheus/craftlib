@@ -7,7 +7,6 @@ import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Set;
 
@@ -16,13 +15,11 @@ public class PluginLibraryResolver extends LibraryResolver {
 
     private final Plugin plugin;
     private final PluginFile pluginFile;
-    private final URLClassLoader classLoader;
 
     public PluginLibraryResolver(Plugin plugin, PluginFile pluginFile) {
         super(plugin.getLogger(), plugin.getDataFolder(), pluginFile.getRepositories());
         this.plugin = plugin;
         this.pluginFile = pluginFile;
-        this.classLoader = (URLClassLoader) pluginFile.getPlugin().getClass().getClassLoader();
 
         // set default repositories
         getRepositories().addAll(LibraryRepository.ALL);

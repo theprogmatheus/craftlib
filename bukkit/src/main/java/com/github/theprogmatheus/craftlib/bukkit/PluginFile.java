@@ -57,7 +57,7 @@ public class PluginFile {
         if (yaml == null)
             return Set.of();
 
-        var repositories = yaml.getStringList("repositories");
+        var repositories = yaml.getStringList("craftlib.repositories");
         if (repositories == null)
             return Set.of();
 
@@ -84,7 +84,10 @@ public class PluginFile {
         if (yaml == null)
             return Set.of();
 
-        var libraries = yaml.getStringList("libraries");
+        var libraries = yaml.getStringList("craftlib.libraries");
+        if (libraries == null)
+            libraries = yaml.getStringList("libraries");
+
         if (libraries == null)
             return Set.of();
 
