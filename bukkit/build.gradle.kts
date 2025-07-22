@@ -26,3 +26,11 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 }
+
+tasks.shadowJar {
+    archiveBaseName.set("CraftLib")
+    archiveClassifier.set("Bukkit")
+    archiveVersion.set(project.version.toString())
+
+    dependsOn(":core:jar")
+}

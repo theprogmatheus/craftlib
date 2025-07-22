@@ -1,7 +1,7 @@
 load: "STARTUP"
 main: "com.github.theprogmatheus.craftlib.bukkit.Main"
 name: "CraftLib"
-version: "1.0"
+version: "1.0-SNAPSHOT"
 api-version: 1.8
 author: "TheProgMatheus"
 website: "https://github.com/theprogmatheus/craftlib"
