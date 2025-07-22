@@ -58,7 +58,7 @@ This unique two-plugin approach ensures that your plugin's dependencies are load
 
 -----
 
-## 🛠️ How to Use
+## 🔨 How to Use
 
 ### 1\. Add CraftLib to your plugin
 
@@ -70,7 +70,7 @@ depend: [CraftLib]
 
 Your plugin will only load if CraftLib is present on the server. You don't need to bundle CraftLib in your own JAR – just include it on the server like any other plugin.
 
-> 💡 Tip: You can download the latest version of CraftLib from [Releases](https://www.google.com/search?q=https://github.com/YourRepo/CraftLib/releases) (or wherever your releases are hosted).
+> 💡 Tip: You can download the latest version of CraftLib from [Releases](https://github.com/theprogmatheus/craftlib/releases) (or wherever your releases are hosted).
 
 ### 2\. Declare dependencies in `plugin.yml`
 
@@ -132,8 +132,8 @@ No shading, no fat JARs, no hassle. CraftLib handles the dependency resolution a
 
 ## 📄 License
 
-[MIT License](https://www.google.com/search?q=LICENSE).
+[MIT License](LICENSE).
 
 -----
 
-Made with ☕ and ❤️ by [@TheProgMatheus](https://github.com/theprogmatheus)
+Made with ☕ and 💙 by [@TheProgMatheus](https://github.com/theprogmatheus)
