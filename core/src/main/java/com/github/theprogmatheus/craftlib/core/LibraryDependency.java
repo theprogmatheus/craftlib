@@ -96,6 +96,16 @@ public class LibraryDependency {
         return buildURI(repository, "-sources.jar");
     }
 
+
+    /**
+     * Checks if the version of this dependence is a snapshot
+     *
+     * @return if it is a snapshot version
+     */
+    public boolean isSnapshot() {
+        return this.version.toUpperCase().endsWith("-SNAPSHOT");
+    }
+
     /**
      * Helper method to construct the correct download URI with a given suffix.
      *
@@ -104,15 +114,13 @@ public class LibraryDependency {
      * @return the constructed URI
      */
     private URI buildURI(LibraryRepository repository, String suffix) {
-        String resolvedVersion = getVersion();
 
-        if (resolvedVersion.toUpperCase().endsWith("-SNAPSHOT")) {
+        if (isSnapshot()) {
             String snapshotVersion = SnapshotMetadataResolver.resolveSnapshotVersion(this, repository);
             if (snapshotVersion != null)
-                resolvedVersion = snapshotVersion;
+                return repository.getUri().resolve(getArtifactPath(snapshotVersion, suffix));
         }
-
-        return repository.getUri().resolve(getArtifactPath(resolvedVersion, suffix));
+        return repository.getUri().resolve(getArtifactPath(this.version, suffix));
     }
 
     /**

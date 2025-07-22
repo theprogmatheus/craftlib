@@ -95,7 +95,7 @@ public abstract class LibraryResolver {
                         + File.separator + dependency.getJarFileName()
         );
 
-        if (outputFile.exists()) {
+        if (!dependency.isSnapshot() && outputFile.exists()) {
             logger.info("Dependency already cached locally: " + outputFile.getAbsolutePath());
             return outputFile;
         }
@@ -116,6 +116,8 @@ public abstract class LibraryResolver {
             }
         }
 
+        if (outputFile.exists())
+            return outputFile;
 
         logger.log(Level.SEVERE, "Failed to resolve dependency after checking all repositories: " + dependency, lastError);
         throw new IOException("Failed to resolve dependency: " + dependency, lastError);
