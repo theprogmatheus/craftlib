@@ -1,7 +1,10 @@
 package com.github.theprogmatheus.craftlib.core;
 
 
+import com.github.theprogmatheus.craftlib.core.maven.MavenDependencyResolver;
 import lombok.Data;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,10 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -31,8 +31,9 @@ public abstract class LibraryResolver {
     private final Logger logger;
     private final File librariesFolder;
     private final Set<LibraryRepository> repositories;
+    private final MavenDependencyResolver mavenDependencyResolver;
 
-    public abstract List<File> resolve();
+    public abstract Collection<File> resolve();
 
     /**
      * Constructs a new LibraryResolver.
@@ -44,6 +45,46 @@ public abstract class LibraryResolver {
         this.logger = logger;
         this.librariesFolder = new File(dataFolder, "libraries");
         this.repositories = repositories;
+
+        List<RemoteRepository> mavenRepositories = this.repositories.stream()
+                .map(LibraryRepository::toMavenRepository)
+                .collect(Collectors.toList());
+        mavenRepositories.addAll(LibraryRepository.ALL.stream().map(LibraryRepository::toMavenRepository).collect(Collectors.toList()));
+
+        this.mavenDependencyResolver = new MavenDependencyResolver(this.librariesFolder, mavenRepositories);
+    }
+
+
+    /**
+     * Resolves and downloads the provided dependencies, if they are not already cached locally.
+     *
+     * @param dependencies The list of dependencies to resolve and download.
+     * @return The list of files pointing to the downloaded jars.
+     * @throws IOException If any dependency could not be downloaded.
+     */
+    public Collection<File> resolveMaven(Collection<LibraryDependency> dependencies) {
+        if (dependencies == null) {
+            logger.warning("No dependencies provided to resolve (null list). Returning empty list.");
+            return new ArrayList<>();
+        }
+
+        logger.info("Starting to resolve " + dependencies.size() + " dependencies...");
+
+        Set<File> resolvedFiles = new HashSet<>();
+        dependencies.forEach(dependency -> {
+            try {
+                logger.fine("Resolving dependency: " + dependency);
+                List<File> files = resolveMaven(dependency);
+                resolvedFiles.addAll(files);
+                logger.fine("Successfully resolved dependency: " + dependency);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Failed to resolve dependency: " + dependency, e);
+                throw new RuntimeException("Dependency resolution failed for " + dependency, e);
+            }
+        });
+
+        logger.info("Finished resolving all dependencies.");
+        return resolvedFiles;
     }
 
     /**
@@ -76,6 +117,20 @@ public abstract class LibraryResolver {
         logger.info("Finished resolving all dependencies.");
 
         return resolvedFiles;
+    }
+
+    public List<File> resolveMaven(LibraryDependency dependency) throws IOException {
+        String coords = dependency.toCoordinates();
+        try {
+            List<File> resolvedFiles = mavenDependencyResolver.resolveDependencies(coords);
+            if (resolvedFiles.isEmpty())
+                throw new IOException("No artifacts found for: " + coords);
+
+            logger.info("Resolved " + resolvedFiles.size() + " artifacts for: " + coords);
+            return resolvedFiles;
+        } catch (DependencyResolutionException e) {
+            throw new IOException("Failed to resolve dependency: " + coords, e);
+        }
     }
 
 
