@@ -42,6 +42,8 @@ public class PluginLibraryShader {
 
         try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(shadeJar), createManifest())) {
 
+            byte[] buffer = new byte[8192];
+
             for (File file : files) {
                 try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
                     ZipEntry entry;
@@ -49,7 +51,12 @@ public class PluginLibraryShader {
                         if (entry.isDirectory() || entry.getName().startsWith("META-INF"))
                             continue;
                         jarOutputStream.putNextEntry(new JarEntry(entry.getName()));
-                        zis.transferTo(jarOutputStream);
+
+                        int bytesRead;
+                        while ((bytesRead = zis.read(buffer)) != -1) {
+                            jarOutputStream.write(buffer, 0, bytesRead);
+                        }
+
                         jarOutputStream.closeEntry();
                     }
                 }
@@ -69,7 +76,7 @@ public class PluginLibraryShader {
             PluginFile pluginFile = new PluginFile(this.shadeJar);
             if (pluginFile.isValidPlugin()) {
                 String shadeHash = pluginFile.getPluginYaml().getString("shade-hash");
-                return (shadeHash != null && !shadeHash.isBlank()) && (this.shadeHash.equals(shadeHash));
+                return (shadeHash != null && !shadeHash.trim().isEmpty()) && (this.shadeHash.equals(shadeHash));
             }
         }
         return false;
@@ -89,7 +96,11 @@ public class PluginLibraryShader {
             if (is == null)
                 throw new IOException("Main dummy class not found in resources: " + path);
             jos.putNextEntry(new JarEntry(path));
-            is.transferTo(jos);
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                jos.write(buffer, 0, bytesRead);
+            }
             jos.closeEntry();
         }
     }

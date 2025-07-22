@@ -40,7 +40,7 @@ public class LibraryDependency {
      * @throws IllegalArgumentException if the coordinates string is invalid
      */
     public static LibraryDependency fromCoordinates(String coordinates) {
-        if (coordinates == null || coordinates.isBlank()) {
+        if (coordinates == null || coordinates.trim().isEmpty()) {
             throw new IllegalArgumentException("Coordinates string cannot be null or empty");
         }
 

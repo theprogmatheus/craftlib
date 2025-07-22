@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -31,15 +32,15 @@ public class PluginFile {
         if (this.pluginName != null)
             return this.pluginName;
 
-        var yaml = getPluginYaml();
+        YamlConfiguration yaml = getPluginYaml();
         if (yaml != null)
             return this.pluginName = yaml.getString("name");
         return this.pluginName;
     }
 
     public boolean isValidPlugin() {
-        var pluginName = getPluginName();
-        return pluginName != null && !pluginName.isBlank();
+        String pluginName = getPluginName();
+        return pluginName != null && !pluginName.trim().isEmpty();
     }
 
     public Plugin getPlugin() {
@@ -52,22 +53,22 @@ public class PluginFile {
         if (this.repositories != null)
             return this.repositories;
 
-        var yaml = getPluginYaml();
+        YamlConfiguration yaml = getPluginYaml();
 
         if (yaml == null)
-            return Set.of();
+            return new HashSet<>();
 
-        var repositories = yaml.getStringList("craftlib.repositories");
+        List<String> repositories = yaml.getStringList("craftlib.repositories");
         if (repositories == null)
-            return Set.of();
+            return new HashSet<>();
 
         Set<LibraryRepository> list = new HashSet<>();
 
         repositories.forEach(repositoryUrl -> {
             try {
-                var uri = URI.create(repositoryUrl);
-                var host = uri.getHost();
-                var name = (host == null || host.isBlank()) ? repositoryUrl : host;
+                URI uri = URI.create(repositoryUrl);
+                String host = uri.getHost();
+                String name = (host == null || host.trim().isEmpty()) ? repositoryUrl : host;
                 list.add(new LibraryRepository(name, uri));
             } catch (Exception ignored) {
             }
@@ -79,17 +80,17 @@ public class PluginFile {
         if (this.dependencies != null)
             return this.dependencies;
 
-        var yaml = getPluginYaml();
+        YamlConfiguration yaml = getPluginYaml();
 
         if (yaml == null)
-            return Set.of();
+            return new HashSet<>();
 
-        var libraries = yaml.getStringList("craftlib.libraries");
+        List<String> libraries = yaml.getStringList("craftlib.libraries");
         if (libraries == null)
             libraries = yaml.getStringList("libraries");
 
         if (libraries == null)
-            return Set.of();
+            return new HashSet<>();
 
         Set<LibraryDependency> list = new HashSet<>();
 

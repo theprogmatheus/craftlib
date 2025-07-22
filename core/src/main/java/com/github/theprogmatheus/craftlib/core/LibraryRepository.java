@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public class LibraryRepository {
      * Default repository priority list.
      * These repositories will be used in the order listed to resolve libraries.
      */
-    public static final List<LibraryRepository> ALL = List.of(
+    public static final List<LibraryRepository> ALL = Arrays.asList(
             MAVEN_CENTRAL,
             SONATYPE_RELEASES,
             SONATYPE_OSS,
@@ -51,4 +52,5 @@ public class LibraryRepository {
             CODE_MC,
             JITPACK
     );
+
 }

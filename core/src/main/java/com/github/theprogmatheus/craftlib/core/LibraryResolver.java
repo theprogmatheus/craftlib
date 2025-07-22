@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Resolves and downloads library dependencies into a local folder.
@@ -54,7 +56,7 @@ public abstract class LibraryResolver {
     public List<File> resolve(Collection<LibraryDependency> dependencies) {
         if (dependencies == null) {
             logger.warning("No dependencies provided to resolve (null list). Returning empty list.");
-            return List.of();
+            return new ArrayList<>();
         }
 
         logger.info("Starting to resolve " + dependencies.size() + " dependencies...");
@@ -69,7 +71,7 @@ public abstract class LibraryResolver {
                 logger.log(Level.SEVERE, "Failed to resolve dependency: " + dep, e);
                 throw new RuntimeException("Dependency resolution failed for " + dep, e);
             }
-        }).toList();
+        }).collect(Collectors.toList());
 
         logger.info("Finished resolving all dependencies.");
 
@@ -105,9 +107,9 @@ public abstract class LibraryResolver {
         for (LibraryRepository repository : repositories) {
             try {
                 URL url = dependency.getDownloadURI(repository).toURL();
-                logger.fine("Trying to download from %s".formatted(url));
+                logger.fine(String.format("Trying to download from %s", url));
                 download(url, outputFile);
-                logger.info("Downloaded dependency successfully: %s".formatted(url));
+                logger.info(String.format("Downloaded dependency successfully: %s", url));
                 return outputFile;
             } catch (IOException e) {
                 lastError = e;

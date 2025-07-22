@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class PluginLibraryResolver extends LibraryResolver {
     public List<File> resolve() {
         Set<LibraryDependency> dependencies = this.pluginFile.getDependencies();
         if (dependencies.isEmpty())
-            return List.of();
+            return new ArrayList<>();
 
         return super.resolve(dependencies);
     }

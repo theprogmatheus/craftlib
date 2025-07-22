@@ -7,7 +7,7 @@ group = "com.github.theprogmatheus.craftlib"
 version = "1.0-SNAPSHOT"
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 }
 
 allprojects {
