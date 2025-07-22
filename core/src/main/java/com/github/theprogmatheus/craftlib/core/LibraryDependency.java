@@ -1,5 +1,6 @@
 package com.github.theprogmatheus.craftlib.core;
 
+import com.github.theprogmatheus.craftlib.core.maven.SnapshotMetadataResolver;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -103,17 +104,40 @@ public class LibraryDependency {
      * @return the constructed URI
      */
     private URI buildURI(LibraryRepository repository, String suffix) {
-        String basePath = String.format("%s/%s/%s/%s-%s%s",
-                groupId.replace('.', '/'),
-                artifactId,
-                version,
-                artifactId,
-                version,
-                suffix);
+        String resolvedVersion = getVersion();
 
-        return repository.getUri().resolve(basePath);
+        if (resolvedVersion.toUpperCase().endsWith("-SNAPSHOT")) {
+            String snapshotVersion = SnapshotMetadataResolver.resolveSnapshotVersion(this, repository);
+            if (snapshotVersion != null)
+                resolvedVersion = snapshotVersion;
+        }
+
+        return repository.getUri().resolve(getArtifactPath(resolvedVersion, suffix));
     }
 
+    /**
+     * Constructs the relative path to the artifact file inside a Maven repository.
+     * <p>
+     * This path includes the group ID (as folder structure), artifact ID, version, and file name,
+     * and it is used to resolve or download the artifact from a Maven-compatible repository.
+     * </p>
+     *
+     * @param version The version of the artifact. Typically something like "1.0.0" or "1.0.0-SNAPSHOT".
+     * @param suffix  The file suffix, such as ".jar", ".pom", "-javadoc.jar", etc.
+     * @return The relative path to the artifact file inside the repository.
+     */
+    public String getArtifactPath(String version, String suffix) {
+        String groupPath = groupId.replace('.', '/');
+        return String.format(
+                "%s/%s/%s/%s-%s%s",
+                groupPath,
+                artifactId,
+                version,
+                artifactId,
+                version,
+                suffix
+        );
+    }
 
     /**
      * Returns the name of the dependency's JAR file.
