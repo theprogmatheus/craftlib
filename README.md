@@ -1,80 +1,21 @@
 # CraftLib
 
-CraftLib is a lightweight and flexible runtime library loader for Bukkit plugins, with built-in support for Maven repositories. It provides powerful control, extensibility, and ease of use for plugin developers, simplifying dependency management.
+CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plugins. It integrates with Maven repositories, handles download and classloading dynamically, and gives plugin developers an easy, powerful way to manage libraries at runtime.
 
------
+---
 
 ## ✨ Features
 
 * Load external dependencies (JARs) at runtime.
 * Support for custom Maven repositories (defaults to Maven Central).
-* Simple and isolated configuration via a dedicated `craftlib` section in `plugin.yml`.
-* Attempts to resolve dependencies for plugins designed with Paper's library system (though success isn't guaranteed).
-* Future-proof with a custom configuration namespace (`craftlib`) for expansion.
+* Simple configuration via a dedicated `craftlib` section in `plugin.yml`.
+* Injects dependencies directly into the plugin’s own classloader (when possible).
+* Built-in fallback that shades and loads libraries via a helper plugin if needed.
+* Future-proof with a namespaced configuration block (`craftlib`).
 
------
+---
 
 ## 📦 `plugin.yml` Example
-
-```yaml
-name: "MyAwesomePlugin"
-main: "com.example.myplugin.MyAwesomePlugin"
-version: "1.0.0"
-depend: ["CraftLib"] # Highly recommended to ensure CraftLib is ready
-
-craftlib:
-  libraries:
-    - com.github.User:LibraryName:VERSION
-    - org.apache.commons:commons-lang3:3.12.0
-    - com.github.LMS5413:inventory-api:v1.0.10 # Example of a specific library
-  repositories:
-    - https://jitpack.io
-    - https://repo.maven.apache.org/maven2
-    - https://blablabla.com # Example of a custom repository
-```
-
------
-
-## 🔧 How It Works
-
-During plugin startup, CraftLib scans your `plugin.yml` for the `craftlib` section, looking for declared libraries and optional repositories.
-
-CraftLib then **downloads the necessary JAR artifacts** from the specified repositories. Once downloaded, it performs a **shading process to create a single "fat JAR" named `libraries.jar`**. This `libraries.jar` is also treated as a plugin named `CraftLibs` by the server.
-
-So, when everything is running, your server will effectively have two CraftLib-related plugins:
-
-* **CraftLib**: This is the core plugin containing all the logic for dependency resolution, downloading, and shading.
-* **CraftLibs** (`libraries.jar`): This is the shaded plugin containing all the external libraries your plugins declared.
-
-This unique two-plugin approach ensures that your plugin's dependencies are loaded dynamically using a custom class loader, isolated from other plugins and the server itself. This means you don't need to bundle external JARs inside your plugin – CraftLib handles it for you, minimizing conflicts and increasing compatibility.
-
------
-
-## 💡 Use Cases
-
-* Reduce plugin size by avoiding shading your own dependencies.
-* Load internal or private libraries directly from sources like GitHub or JitPack.
-* Experiment with modular or pluggable plugin architectures.
-
------
-
-## 🔨 How to Use
-
-### 1\. Add CraftLib to your plugin
-
-To use CraftLib, simply add it as a required plugin in your `plugin.yml`. This is **highly recommended** to ensure CraftLib is fully initialized and ready before your plugin attempts to use its features.
-
-```yaml
-depend: [CraftLib]
-```
-
-Your plugin will only load if CraftLib is present on the server. You don't need to bundle CraftLib in your own JAR – just include it on the server like any other plugin.
-
-> 💡 Tip: You can download the latest version of CraftLib from [Releases](https://github.com/theprogmatheus/craftlib/releases) (or wherever your releases are hosted).
-
-### 2\. Declare dependencies in `plugin.yml`
-
-Use the dedicated `craftlib` section to declare what your plugin needs at runtime:
 
 ```yaml
 name: "MyAwesomePlugin"
@@ -83,57 +24,144 @@ version: "1.0.0"
 depend: ["CraftLib"]
 
 craftlib:
-  repositories:
-    - https://jitpack.io
-    - https://repo.maven.apache.org/maven2
   libraries:
     - com.github.User:LibraryName:VERSION
     - org.apache.commons:commons-lang3:3.12.0
     - com.github.LMS5413:inventory-api:v1.0.10
+  repositories:
+    - https://jitpack.io
+    - https://repo.maven.apache.org/maven2
+````
+
+---
+
+## ⚙️ How It Works
+
+CraftLib offers **two mechanisms** for loading libraries:
+
+### ✅ 1. Direct Classloader Injection
+
+CraftLib first attempts to inject the resolved libraries directly into the plugin’s classloader using `URLClassLoader.addURL`.
+
+> 🔐 **Note for Java 16+ users**:
+> Due to module restrictions, access to this method is blocked by default.
+> You must start your server with:
+>
+> ```bash
+> --add-opens java.base/java.net=ALL-UNNAMED
+> ```
+>
+> This allows CraftLib to inject dependencies cleanly and safely, fully isolated in your plugin’s classloader.
+
+This is the **recommended approach**, as it avoids dependency conflicts and keeps each plugin isolated.
+
+---
+
+### 🔁 2. Shaded Plugin Fallback (`CraftLibs`)
+
+If classloader injection is not possible (e.g., no `--add-opens` and `URLClassLoader.addURL` is inaccessible), CraftLib automatically falls back to:
+
+* Resolving and downloading the required libraries.
+* Creating a **shaded JAR** (`libraries.jar`) with all the dependencies.
+* Registering this JAR as a **separate plugin**, named `CraftLibs`.
+
+Your plugin will then share this runtime helper and access its classes via the shared classloader.
+
+> ⚠️ This fallback is not ideal:
+>
+> * All plugins share the same set of loaded dependencies.
+> * If two plugins require different versions of the same library, **conflicts can happen**.
+> * The first-loaded version of a class takes precedence.
+
+Still, this ensures your plugin **can run** even under restricted environments or server setups.
+
+---
+
+## 🧪 Use Cases
+
+* Reduce plugin size by loading libraries on demand.
+* Avoid bundling huge fat JARs.
+* Fetch libraries directly from GitHub, JitPack, or private Maven repos.
+* Modular plugin architectures where each plugin manages its own dependencies.
+
+---
+
+## 🛠️ How to Use
+
+### 1. Add CraftLib as a dependency
+
+Declare `CraftLib` in your `plugin.yml` as a `depend`:
+
+```yaml
+depend: [CraftLib]
 ```
 
-CraftLib will:
+This ensures CraftLib is loaded before your plugin and ready to manage libraries.
 
-* Automatically download the JARs from the specified repositories.
-* Load them in a classloader isolated from other plugins and the server itself, via the `CraftLibs` plugin.
+You don't need to bundle CraftLib with your plugin – just install it on the server like any other plugin.
 
-### 3\. Use your libraries like magic 🪄
+---
 
-After loading, all classes from the declared libraries will be available in your plugin’s classpath as if they were bundled – but without increasing your JAR size or risking class conflicts.
+### 2. Declare runtime dependencies
 
-You can now code using those libraries just like usual:
+In your `plugin.yml`, declare what libraries your plugin requires using the `craftlib` section:
+
+```yaml
+craftlib:
+  repositories:
+    - https://jitpack.io
+    - https://repo.maven.apache.org/maven2
+  libraries:
+    - org.apache.commons:commons-lang3:3.12.0
+    - com.github.User:LibraryName:VERSION
+```
+
+CraftLib will resolve and load them automatically before your plugin’s `onEnable()` runs.
+
+---
+
+### 3. Use your dependencies like magic 🪄
+
+Once loaded, your plugin can use the libraries as if they were bundled:
 
 ```java
 import org.apache.commons.lang3.StringUtils;
-import com.github.LMS5413.inventoryapi.InventoryAPI; // Example of using a declared library
 
 public class MyAwesomePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
-        getLogger().info("Is empty? " + StringUtils.isEmpty("CraftLib rocks!"));
-        InventoryAPI.init(this); // Example of initializing a declared library
+        getLogger().info("Empty? " + StringUtils.isEmpty("CraftLib rocks!"));
     }
 }
 ```
 
-✅ Done\!
-No shading, no fat JARs, no hassle. CraftLib handles the dependency resolution and class loading at runtime, so you can focus on coding your plugin.
+No extra configuration, no need to package them inside your own plugin JAR.
 
------
+---
+
+## 🚨 Notes and Compatibility
+
+* Java 16+ requires `--add-opens java.base/java.net=ALL-UNNAMED` to enable classloader injection.
+* On older versions of Java (8–15), classloader injection works out of the box.
+* The fallback shaded plugin (`CraftLibs`) is a workaround but may introduce classpath conflicts.
+* CraftLib works best when each plugin uses isolated dependencies. Avoid sharing core libraries (e.g., SLF4J, Guava) across multiple plugins.
+
+---
 
 ## 🚀 Future Plans
 
-* Built-in cache system.
-* Checksum verification.
-* Logging and diagnostics.
+* Dependency checksum validation.
+* Dependency caching and reuse.
+* Optional integration with plugin update systems.
 * Runtime unloading and reloading support.
+* Auto-isolation of shaded plugins to reduce conflicts.
 
------
+---
 
 ## 📄 License
 
-[MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE).
 
------
+---
 
 Made with ☕ and 💙 by [@TheProgMatheus](https://github.com/theprogmatheus)

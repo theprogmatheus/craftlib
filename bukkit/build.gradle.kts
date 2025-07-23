@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.theprogmatheus.craftlib"
-version = "1.0.1-SNAPSHOT"
+version = "1.0.2-SNAPSHOT"
 
 repositories {
     maven {
@@ -28,12 +28,22 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 }
 
-tasks.shadowJar {
-    archiveBaseName.set("CraftLib")
-    archiveClassifier.set("Bukkit")
-    archiveVersion.set(project.version.toString())
+tasks {
+    processResources {
+        filesMatching("plugin.yml") {
+            expand(
+                "version" to project.version
+            )
+        }
+    }
 
-    dependsOn(":core:jar")
+    shadowJar {
+        archiveBaseName.set("CraftLib")
+        archiveClassifier.set("Bukkit")
+        archiveVersion.set(project.version.toString())
+
+        dependsOn(":core:jar")
+    }
 }
 
 
