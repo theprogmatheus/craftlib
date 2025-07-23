@@ -1,5 +1,6 @@
 package com.github.theprogmatheus.craftlib.bukkit;
 
+import com.github.theprogmatheus.craftlib.bukkit.loaders.shade.ShadeLibraryLoader;
 import com.github.theprogmatheus.util.JGRUChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,7 +12,7 @@ public class Main extends JavaPlugin {
     private JGRUChecker updateChecker;
 
     public Main() {
-        new PluginLibraryTracker(this).run();
+        new PluginLibraryTracker(this, new ShadeLibraryLoader(this)).run();
     }
 
     @Override
