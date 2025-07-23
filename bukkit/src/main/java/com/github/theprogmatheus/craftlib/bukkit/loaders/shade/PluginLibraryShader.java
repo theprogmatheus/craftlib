@@ -1,5 +1,6 @@
-package com.github.theprogmatheus.craftlib.bukkit;
+package com.github.theprogmatheus.craftlib.bukkit.loaders.shade;
 
+import com.github.theprogmatheus.craftlib.bukkit.PluginFile;
 import com.github.theprogmatheus.craftlib.core.utils.FileUtils;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -18,7 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Getter
-public class PluginLibraryShader {
+class PluginLibraryShader {
 
     private static final String MAIN_CLASS_NAME = "com.github.theprogmatheus.craftlib.bukkit.shade.Main";
     private static final String PLUGIN_YML = "plugin.yml";

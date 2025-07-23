@@ -1,5 +1,8 @@
 package com.github.theprogmatheus.craftlib.bukkit;
 
+import com.github.theprogmatheus.craftlib.bukkit.loaders.classloader.ClassLoaderLibraryLoader;
+import com.github.theprogmatheus.craftlib.bukkit.loaders.shade.ShadeLibraryLoader;
+import com.github.theprogmatheus.craftlib.core.LibraryLoader;
 import com.github.theprogmatheus.util.JGRUChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,13 +13,10 @@ public class Main extends JavaPlugin {
 
     private JGRUChecker updateChecker;
 
-    public Main() {
-        new PluginLibraryTracker(this).run();
-    }
 
     @Override
     public void onLoad() {
-        this.updateChecker = new JGRUChecker("theprogmatheus", "craftlib", getDescription().getVersion());
+        checkLibraries();
     }
 
     @Override
@@ -24,7 +24,32 @@ public class Main extends JavaPlugin {
         checkNewUpdates();
     }
 
+    private void checkLibraries() {
+        LibraryLoader<PluginFile> libraryLoader;
+
+        if (ClassLoaderLibraryLoader.isAvailable())
+            libraryLoader = new ClassLoaderLibraryLoader(this);
+        else {
+            libraryLoader = new ShadeLibraryLoader(this);
+
+            getLogger().warning("------------------------------------------------------------");
+            getLogger().warning("Your Java version has restricted access to the ClassLoader.addURL method.");
+            getLogger().warning("CraftLib will fallback to the shaded plugin loader.");
+            getLogger().warning("This means all libraries will be merged into the plugin jar.");
+            getLogger().warning("");
+            getLogger().warning("[!] WARNING: This fallback is less stable and may cause dependency conflicts.");
+            getLogger().warning("CraftLib cannot isolate dependencies and will use the first version it finds.");
+            getLogger().warning("");
+            getLogger().warning("[!] For best compatibility, start your server with the following JVM flag:");
+            getLogger().warning("   --add-opens java.base/java.net=ALL-UNNAMED");
+            getLogger().warning("This will allow CraftLib to dynamically inject libraries at runtime.");
+            getLogger().warning("------------------------------------------------------------");
+        }
+        new PluginLibraryTracker(this, libraryLoader).run();
+    }
+
     private void checkNewUpdates() {
+        this.updateChecker = new JGRUChecker("theprogmatheus", "craftlib", getDescription().getVersion());
         this.updateChecker.checkAsync().thenAcceptAsync(release -> {
             if (release == null || this.updateChecker.getCurrentVersion().equals(release.getVersion())) return;
 

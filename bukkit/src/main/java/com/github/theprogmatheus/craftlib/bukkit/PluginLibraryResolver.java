@@ -17,7 +17,7 @@ public class PluginLibraryResolver extends LibraryResolver {
     private final PluginFile pluginFile;
 
     public PluginLibraryResolver(Plugin plugin, PluginFile pluginFile) {
-        super(plugin.getLogger(), plugin.getDataFolder(), pluginFile.getRepositories());
+        super(pluginFile.getPluginName(), plugin.getLogger(), plugin.getDataFolder(), pluginFile.getRepositories());
         this.plugin = plugin;
         this.pluginFile = pluginFile;
     }

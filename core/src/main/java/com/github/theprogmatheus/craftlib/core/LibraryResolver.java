@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @Data
 public abstract class LibraryResolver {
 
+    private final String name;
     private final Logger logger;
     private final File librariesFolder;
     private final Set<LibraryRepository> repositories;
@@ -41,7 +42,8 @@ public abstract class LibraryResolver {
      * @param dataFolder   The plugin's base data folder.
      * @param repositories A list of repositories to search in order.
      */
-    public LibraryResolver(Logger logger, File dataFolder, Set<LibraryRepository> repositories) {
+    public LibraryResolver(String name, Logger logger, File dataFolder, Set<LibraryRepository> repositories) {
+        this.name = name;
         this.logger = logger;
         this.librariesFolder = new File(dataFolder, "libraries");
         this.repositories = repositories;
@@ -64,26 +66,26 @@ public abstract class LibraryResolver {
      */
     public Collection<File> resolveMaven(Collection<LibraryDependency> dependencies) {
         if (dependencies == null) {
-            logger.warning("No dependencies provided to resolve (null list). Returning empty list.");
+            logger.warning(formatLog("No dependencies provided to resolve (null list). Returning empty list."));
             return new ArrayList<>();
         }
 
-        logger.info("Starting to resolve " + dependencies.size() + " dependencies...");
+        logger.info(formatLog("Starting to resolve %s dependencies...", dependencies.size()));
 
         Set<File> resolvedFiles = new HashSet<>();
         dependencies.forEach(dependency -> {
             try {
-                logger.fine("Resolving dependency: " + dependency);
+                logger.fine(formatLog("Resolving dependency: %s", dependency));
                 List<File> files = resolveMaven(dependency);
                 resolvedFiles.addAll(files);
-                logger.fine("Successfully resolved dependency: " + dependency);
+                logger.fine(formatLog("Successfully reolsved dependency: %s", dependency));
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to resolve dependency: " + dependency, e);
+                logger.log(Level.SEVERE, formatLog("Failed to resolve dependency: %s", dependency), e);
                 throw new RuntimeException("Dependency resolution failed for " + dependency, e);
             }
         });
 
-        logger.info("Finished resolving all dependencies.");
+        logger.info(formatLog("Finished resolving all dependencies."));
         return resolvedFiles;
     }
 
@@ -94,9 +96,10 @@ public abstract class LibraryResolver {
      * @return The list of files pointing to the downloaded jars.
      * @throws IOException If any dependency could not be downloaded.
      */
+    @Deprecated
     public List<File> resolve(Collection<LibraryDependency> dependencies) {
         if (dependencies == null) {
-            logger.warning("No dependencies provided to resolve (null list). Returning empty list.");
+            logger.warning(formatLog("No dependencies provided to resolve (null list). Returning empty list."));
             return new ArrayList<>();
         }
 
@@ -104,17 +107,17 @@ public abstract class LibraryResolver {
 
         List<File> resolvedFiles = dependencies.stream().map(dep -> {
             try {
-                logger.fine("Resolving dependency: " + dep);
+                logger.fine(formatLog("Resolving dependency: %s", dep));
                 File file = resolve(dep);
-                logger.fine("Successfully resolved dependency: " + file.getAbsolutePath());
+                logger.fine(formatLog("Successfully reolsved dependency: %s", dep));
                 return file;
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to resolve dependency: " + dep, e);
+                logger.log(Level.SEVERE, formatLog("Failed to resolve dependency: " + dep), e);
                 throw new RuntimeException("Dependency resolution failed for " + dep, e);
             }
         }).collect(Collectors.toList());
 
-        logger.info("Finished resolving all dependencies.");
+        logger.info(formatLog("Finished resolving all dependencies."));
 
         return resolvedFiles;
     }
@@ -126,7 +129,7 @@ public abstract class LibraryResolver {
             if (resolvedFiles.isEmpty())
                 throw new IOException("No artifacts found for: " + coords);
 
-            logger.info("Resolved " + resolvedFiles.size() + " artifacts for: " + coords);
+            logger.info(formatLog("Resolved " + resolvedFiles.size() + " artifacts for: " + coords));
             return resolvedFiles;
         } catch (DependencyResolutionException e) {
             throw new IOException("Failed to resolve dependency: " + coords, e);
@@ -141,6 +144,7 @@ public abstract class LibraryResolver {
      * @return The file pointing to the downloaded jar.
      * @throws IOException If the dependency could not be downloaded.
      */
+    @Deprecated
     public File resolve(LibraryDependency dependency) throws IOException {
         File outputFile = new File(
                 librariesFolder,
@@ -178,6 +182,7 @@ public abstract class LibraryResolver {
         throw new IOException("Failed to resolve dependency: " + dependency, lastError);
     }
 
+    @Deprecated
     private void download(URL url, File destination) throws IOException {
         logger.fine("Opening connection to URL: " + url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -200,7 +205,10 @@ public abstract class LibraryResolver {
                 out.write(buffer, 0, len);
             }
         }
-
         logger.fine("Download finished for file: " + destination.getAbsolutePath());
+    }
+
+    private String formatLog(String message, Object... args) {
+        return String.format("[%s] %s", this.name, String.format(message, args));
     }
 }

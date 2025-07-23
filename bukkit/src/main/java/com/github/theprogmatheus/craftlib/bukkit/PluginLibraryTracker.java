@@ -1,13 +1,10 @@
 package com.github.theprogmatheus.craftlib.bukkit;
 
+import com.github.theprogmatheus.craftlib.core.LibraryLoader;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.github.theprogmatheus.craftlib.bukkit.PluginFile.isValidJarFile;
 
@@ -17,6 +14,7 @@ public class PluginLibraryTracker implements Runnable {
     public static final File PLUGINS_FOLDER = new File("plugins");
 
     private final JavaPlugin plugin;
+    private final LibraryLoader<PluginFile> loader;
 
     @Override
     public void run() {
@@ -27,7 +25,6 @@ public class PluginLibraryTracker implements Runnable {
         if (files == null)
             return;
 
-        Set<File> filesToShade = new HashSet<>();
 
         for (File file : files) {
             if (!isValidJarFile(file))
@@ -37,19 +34,18 @@ public class PluginLibraryTracker implements Runnable {
             if (!pluginFile.isValidPlugin())
                 continue;
 
-            filesToShade.addAll(new PluginLibraryResolver(this.plugin, pluginFile).resolve());
+            if (pluginFile.getDependencies().isEmpty())
+                continue;
+
+            PluginLibraryResolver pluginLibResolver = new PluginLibraryResolver(this.plugin, pluginFile);
+            this.loader.addLibraries(pluginFile, pluginLibResolver.resolve());
         }
+
         try {
-            plugin.getLogger().info("Trying to load a shaded dependency file");
-            PluginLibraryShader libraryShader = new PluginLibraryShader(this.plugin, new File(plugin.getDataFolder(), "libraries.jar"), filesToShade);
-            Plugin shadedPlugin = Bukkit.getPluginManager().loadPlugin(libraryShader.shade());
-
-            plugin.getLogger().info(String.format("Shaded dependency file loaded successfully [%s].", shadedPlugin.getName()));
+            this.loader.loadLibraries();
         } catch (Exception e) {
-            plugin.getLogger().severe("Unable to create a shaded dependency file");
-            e.printStackTrace();
+            throw new RuntimeException("Could not load library files", e);
         }
-
     }
 
 }
