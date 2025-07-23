@@ -45,7 +45,9 @@ public class ClassLoaderLibraryLoader extends LibraryLoaderImpl {
 
             URL[] urls = librariesFiles.stream().map(file -> {
                 try {
-                    return file.toURI().toURL();
+                    URL url = file.toURI().toURL();
+                    logger.fine(String.format("[%s] Preparing to inject: %s", plugin.getPluginName(), file.getName()));
+                    return url;
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
@@ -58,21 +60,24 @@ public class ClassLoaderLibraryLoader extends LibraryLoaderImpl {
 
 
     public void injectLibraries(PluginFile pluginFile, URL[] urls) throws Exception {
-
+        String pluginName = pluginFile.getPluginName();
         Plugin plugin = pluginFile.getPlugin();
-        if (plugin == null)
+
+        if (plugin == null) {
+            logger.warning(String.format("[%s] Plugin reference is null.", pluginName));
             return;
+        }
 
         ClassLoader classLoader = plugin.getClass().getClassLoader();
-        if (!(classLoader instanceof URLClassLoader))
+        if (!(classLoader instanceof URLClassLoader)) {
+            logger.warning(String.format("[%s] ClassLoader is not a URLClassLoader.", pluginName));
             return;
+        }
 
-        for (URL url : urls)
+        for (URL url : urls) {
+            logger.info(String.format("[%s] Injecting library into classloader: %s", pluginName, new File(url.toURI()).getName()));
             addURLMethod.invoke(classLoader, url);
-    }
-
-    private void addURL(URLClassLoader classLoader, URL url) throws Exception {
-        addURLMethod.invoke(classLoader, url);
+        }
     }
 
     public static boolean isAvailable() {

@@ -83,14 +83,14 @@ public class PluginFile {
         YamlConfiguration yaml = getPluginYaml();
 
         if (yaml == null)
-            return new HashSet<>();
+            return this.dependencies = new HashSet<>();
 
         List<String> libraries = yaml.getStringList("craftlib.libraries");
         if (libraries == null)
             libraries = yaml.getStringList("libraries");
 
         if (libraries == null)
-            return new HashSet<>();
+            return this.dependencies = new HashSet<>();
 
         Set<LibraryDependency> list = new HashSet<>();
 

@@ -34,6 +34,9 @@ public class PluginLibraryTracker implements Runnable {
             if (!pluginFile.isValidPlugin())
                 continue;
 
+            if (pluginFile.getDependencies().isEmpty())
+                continue;
+
             PluginLibraryResolver pluginLibResolver = new PluginLibraryResolver(this.plugin, pluginFile);
             this.loader.addLibraries(pluginFile, pluginLibResolver.resolve());
         }
