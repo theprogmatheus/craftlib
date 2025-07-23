@@ -75,9 +75,10 @@ public class ClassLoaderLibraryLoader extends LibraryLoaderImpl {
         }
 
         for (URL url : urls) {
-            logger.info(String.format("[%s] Injecting library into classloader: %s", pluginName, new File(url.toURI()).getName()));
+            logger.fine(String.format("[%s] Injecting library into classloader: %s", pluginName, new File(url.toURI()).getName()));
             addURLMethod.invoke(classLoader, url);
         }
+        logger.info(String.format("[%s] %s dependencies were injected into plugin ClassLoader.", pluginName, urls.length));
     }
 
     public static boolean isAvailable() {

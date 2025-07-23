@@ -11,12 +11,14 @@ import java.util.logging.Logger;
 
 public class Main extends JavaPlugin {
 
+    private boolean loaded;
     private JGRUChecker updateChecker;
-
 
     @Override
     public void onLoad() {
-        checkLibraries();
+        if (!loaded)
+            checkLibraries();
+        loaded = true;
     }
 
     @Override
