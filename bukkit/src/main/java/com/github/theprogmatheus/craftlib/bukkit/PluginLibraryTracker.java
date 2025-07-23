@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.github.theprogmatheus.craftlib.bukkit.PluginFile.isValidJarFile;
 
@@ -16,7 +14,7 @@ public class PluginLibraryTracker implements Runnable {
     public static final File PLUGINS_FOLDER = new File("plugins");
 
     private final JavaPlugin plugin;
-    private final LibraryLoader loader;
+    private final LibraryLoader<PluginFile> loader;
 
     @Override
     public void run() {
@@ -27,7 +25,6 @@ public class PluginLibraryTracker implements Runnable {
         if (files == null)
             return;
 
-        Set<File> libraryFiles = new HashSet<>();
 
         for (File file : files) {
             if (!isValidJarFile(file))
@@ -36,11 +33,13 @@ public class PluginLibraryTracker implements Runnable {
             PluginFile pluginFile = new PluginFile(file);
             if (!pluginFile.isValidPlugin())
                 continue;
-            libraryFiles.addAll(new PluginLibraryResolver(this.plugin, pluginFile).resolve());
+
+            PluginLibraryResolver pluginLibResolver = new PluginLibraryResolver(this.plugin, pluginFile);
+            this.loader.addLibraries(pluginFile, pluginLibResolver.resolve());
         }
 
         try {
-            loader.loadLibraries(libraryFiles);
+            this.loader.loadLibraries();
         } catch (Exception e) {
             throw new RuntimeException("Could not load library files", e);
         }

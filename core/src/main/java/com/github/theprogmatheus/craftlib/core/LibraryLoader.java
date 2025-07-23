@@ -3,7 +3,9 @@ package com.github.theprogmatheus.craftlib.core;
 import java.io.File;
 import java.util.Collection;
 
-public interface LibraryLoader {
+public interface LibraryLoader<T> {
 
-    public abstract boolean loadLibraries(Collection<File> libraryFiles) throws Exception;
+    public abstract void addLibraries(T target, Collection<File> libraryFiles);
+
+    public abstract boolean loadLibraries() throws Exception;
 }
