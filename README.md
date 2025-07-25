@@ -15,7 +15,7 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 
 ---
 
-## ✨ Features
+## Features
 
 * Load external dependencies (JARs) at runtime.
 * Support for custom Maven repositories.
@@ -26,7 +26,7 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 
 ---
 
-## 🧪 Use Cases
+## Use Cases
 
 * Reduce plugin size by loading libraries on demand.
 * Avoid bundling huge fat JARs.
@@ -34,22 +34,22 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 * Modular plugin architectures where each plugin manages its own dependencies. 
 
 ---  
-## 📘 Documentation
+## Documentation
 
 > **For full documentation, visit the [Wiki](https://github.com/theprogmatheus/craftlib/wiki).**
 
 <details>  
-  <summary>⚙️ How It Works</summary>
+  <summary>How It Works</summary>
   
   ---
   
 **CraftLib** offers *two mechanisms* for loading libraries:
 
-### ✅ 1. Direct Classloader Injection
+### 1. Direct Classloader Injection
 
 CraftLib first attempts to inject the resolved libraries directly into the plugin’s classloader using `URLClassLoader.addURL`.
 
-> 🔐 **Note for Java 16+ users**:
+> **Note for Java 16+ users**:
 > Due to module restrictions, access to this method is blocked by default.
 > You must start your server with:
 >
@@ -63,7 +63,7 @@ This is the **recommended approach**, as it avoids dependency conflicts and keep
 
 ---
 
-### 🔁 2. Shaded Plugin Fallback (`CraftLibs`)
+### 2. Shaded Plugin Fallback (`CraftLibs`)
 
 If classloader injection is not possible (e.g., no `--add-opens` and `URLClassLoader.addURL` is inaccessible), CraftLib automatically falls back to:
 
@@ -73,7 +73,7 @@ If classloader injection is not possible (e.g., no `--add-opens` and `URLClassLo
 
 Your plugin will then share this runtime helper and access its classes via the shared classloader.
 
-> ⚠️ This fallback is not ideal:
+> This fallback is not ideal:
 >
 > * All plugins share the same set of loaded dependencies.
 > * If two plugins require different versions of the same library, **conflicts can happen**.
@@ -83,7 +83,7 @@ Still, this ensures your plugin **can run** even under restricted environments o
 
 ---
 
-## 🛠️ How to Use
+## How to Use
 
 ### 1. Add CraftLib as a dependency
 
@@ -117,7 +117,7 @@ CraftLib will resolve and load them automatically before your plugin’s `onEnab
 
 ---
 
-### 3. Use your dependencies like magic 🪄
+### 3. Use your dependencies like magic
 
 Once loaded, your plugin can use the libraries as if they were bundled:
 
@@ -136,7 +136,7 @@ No extra configuration, no need to package them inside your own plugin JAR.
 
 ---
 
-## 📦 `plugin.yml` Example
+## `plugin.yml` Example
   
 ```yaml
 name: "MyAwesomePlugin"
@@ -159,7 +159,7 @@ craftlib:
 ---
 
 
-## 🚨 Notes and Compatibility
+## Notes and Compatibility
 
 * Java 16+ requires `--add-opens java.base/java.net=ALL-UNNAMED` to enable classloader injection.
 * On older versions of Java (8–15), classloader injection works out of the box.
@@ -168,7 +168,7 @@ craftlib:
 
 ---
 
-## 🚀 Future Plans
+## Future Plans
 
 * Dependency checksum validation.
 * Dependency caching and reuse.
@@ -178,7 +178,7 @@ craftlib:
 
 ---
 
-## 📄 License
+## License
 
 Licensed under the [MIT License](LICENSE).
 
