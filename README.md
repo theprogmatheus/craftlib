@@ -7,11 +7,11 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 [![Download](https://img.shields.io/github/v/release/theprogmatheus/craftlib?label=Download)](https://github.com/theprogmatheus/craftlib/latest)
  
 [![Docs](https://img.shields.io/badge/docs-wiki-4AB197)](https://github.com/theprogmatheus/craftlib/wiki)
-![License](https://img.shields.io/github/license/theprogmatheus/craftlib)
-![GitHub issues](https://img.shields.io/github/issues/theprogmatheus/craftlib)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/theprogmatheus/craftlib)
-![GitHub forks](https://img.shields.io/github/forks/theprogmatheus/craftlib?style=social)
-![GitHub stars](https://img.shields.io/github/stars/theprogmatheus/craftlib?style=social)
+[![License](https://img.shields.io/github/license/theprogmatheus/craftlib)](LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/theprogmatheus/craftlib)](https://github.com/theprogmatheus/craftlib/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/theprogmatheus/craftlib)](https://github.com/theprogmatheus/craftlib/pulls)
+[![GitHub forks](https://img.shields.io/github/forks/theprogmatheus/craftlib?style=social)](https://github.com/theprogmatheus/craftlib/forks)
+[![GitHub stars](https://img.shields.io/github/stars/theprogmatheus/craftlib?style=social)](https://github.com/theprogmatheus/craftlib/stargazers)
 
 ---
 
