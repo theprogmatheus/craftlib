@@ -4,10 +4,21 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 
 ---
 
+[![Download](https://img.shields.io/github/v/release/theprogmatheus/craftlib?label=Download)](https://github.com/theprogmatheus/craftlib/latest)
+ 
+[![Docs](https://img.shields.io/badge/docs-wiki-4AB197)](https://github.com/theprogmatheus/craftlib/wiki)
+![License](https://img.shields.io/github/license/theprogmatheus/craftlib)
+![GitHub issues](https://img.shields.io/github/issues/theprogmatheus/craftlib)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/theprogmatheus/craftlib)
+![GitHub forks](https://img.shields.io/github/forks/theprogmatheus/craftlib?style=social)
+![GitHub stars](https://img.shields.io/github/stars/theprogmatheus/craftlib?style=social)
+
+---
+
 ## ✨ Features
 
 * Load external dependencies (JARs) at runtime.
-* Support for custom Maven repositories (defaults to Maven Central).
+* Support for custom Maven repositories.
 * Simple configuration via a dedicated `craftlib` section in `plugin.yml`.
 * Injects dependencies directly into the plugin’s own classloader (when possible).
 * Built-in fallback that shades and loads libraries via a helper plugin if needed.
@@ -15,29 +26,24 @@ CraftLib is a lightweight and flexible runtime dependency loader for Bukkit plug
 
 ---
 
-## 📦 `plugin.yml` Example
+## 🧪 Use Cases
 
-```yaml
-name: "MyAwesomePlugin"
-main: "com.example.myplugin.MyAwesomePlugin"
-version: "1.0.0"
-depend: ["CraftLib"]
+* Reduce plugin size by loading libraries on demand.
+* Avoid bundling huge fat JARs.
+* Fetch libraries directly from GitHub, JitPack, or private Maven repos.
+* Modular plugin architectures where each plugin manages its own dependencies. 
 
-craftlib:
-  libraries:
-    - com.github.User:LibraryName:VERSION
-    - org.apache.commons:commons-lang3:3.12.0
-    - com.github.LMS5413:inventory-api:v1.0.10
-  repositories:
-    - https://jitpack.io
-    - https://repo.maven.apache.org/maven2
-````
+---  
+## 📘 Documentation
 
----
+> **For full documentation, visit the [Wiki](https://github.com/theprogmatheus/craftlib/wiki).**
 
-## ⚙️ How It Works
-
-CraftLib offers **two mechanisms** for loading libraries:
+<details>  
+  <summary>⚙️ How It Works</summary>
+  
+  ---
+  
+**CraftLib** offers *two mechanisms* for loading libraries:
 
 ### ✅ 1. Direct Classloader Injection
 
@@ -74,15 +80,6 @@ Your plugin will then share this runtime helper and access its classes via the s
 > * The first-loaded version of a class takes precedence.
 
 Still, this ensures your plugin **can run** even under restricted environments or server setups.
-
----
-
-## 🧪 Use Cases
-
-* Reduce plugin size by loading libraries on demand.
-* Avoid bundling huge fat JARs.
-* Fetch libraries directly from GitHub, JitPack, or private Maven repos.
-* Modular plugin architectures where each plugin manages its own dependencies.
 
 ---
 
@@ -138,6 +135,29 @@ public class MyAwesomePlugin extends JavaPlugin {
 No extra configuration, no need to package them inside your own plugin JAR.
 
 ---
+
+## 📦 `plugin.yml` Example
+  
+```yaml
+name: "MyAwesomePlugin"
+main: "com.example.myplugin.MyAwesomePlugin"
+version: "1.0.0"
+depend: ["CraftLib"]
+
+craftlib:
+  libraries:
+    - com.github.User:LibraryName:VERSION
+    - org.apache.commons:commons-lang3:3.12.0
+    - com.github.LMS5413:inventory-api:v1.0.10
+  repositories:
+    - https://jitpack.io
+    - https://repo.maven.apache.org/maven2
+```
+
+</details>
+
+---
+
 
 ## 🚨 Notes and Compatibility
 
